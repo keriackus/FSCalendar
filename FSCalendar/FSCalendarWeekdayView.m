@@ -14,6 +14,7 @@
 @interface FSCalendarWeekdayView()
 
 @property (strong, nonatomic) NSPointerArray *weekdayPointers;
+@property (strong, nonatomic) NSPointerArray *weekdayNotficationPointers;
 @property (weak  , nonatomic) UIView *contentView;
 @property (weak  , nonatomic) FSCalendar *calendar;
 
@@ -22,7 +23,7 @@
 @end
 
 @implementation FSCalendarWeekdayView
-
+CGFloat notificationDimen = 14;
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -48,11 +49,24 @@
     _contentView = contentView;
     
     _weekdayPointers = [NSPointerArray weakObjectsPointerArray];
+    _weekdayNotficationPointers = [NSPointerArray weakObjectsPointerArray];
     for (int i = 0; i < 7; i++) {
         UILabel *weekdayLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         weekdayLabel.textAlignment = NSTextAlignmentCenter;
         [self.contentView addSubview:weekdayLabel];
         [_weekdayPointers addPointer:(__bridge void * _Nullable)(weekdayLabel)];
+        
+        UILabel *notificationCircle = [[UILabel alloc] initWithFrame:CGRectZero];
+        notificationCircle.hidden =  YES;
+        notificationCircle.layer.cornerRadius = notificationDimen/2.0f;
+        notificationCircle.backgroundColor =[UIColor redColor];
+        notificationCircle.text = @"3";
+        notificationCircle.textColor = [UIColor whiteColor];
+        notificationCircle.textAlignment = NSTextAlignmentCenter;
+        notificationCircle.layer.masksToBounds = YES;
+        notificationCircle.font = [UIFont systemFontOfSize:9];
+        [self.contentView addSubview:notificationCircle];
+        [_weekdayNotficationPointers addPointer:(__bridge void * _Nullable)(notificationCircle)];
     }
 }
 
@@ -74,14 +88,21 @@
         UIUserInterfaceLayoutDirection direction = [UIView userInterfaceLayoutDirectionForSemanticContentAttribute:self.calendar.semanticContentAttribute];
         opposite = (direction == UIUserInterfaceLayoutDirectionRightToLeft);
     }
-    CGFloat x = 0;
-    for (NSInteger i = 0; i < count; i++) {
-        CGFloat width = widths[i];
-        NSInteger labelIndex = opposite ? count-1-i : i;
-        UILabel *label = [self.weekdayPointers pointerAtIndex:labelIndex];
-        label.frame = CGRectMake(x, 0, width, self.contentView.fs_height);
-        x = CGRectGetMaxX(label.frame);
-    }
+    
+     __block CGFloat x = 0;
+    [self.weekdayLabels enumerateObjectsUsingBlock:^(UILabel *weekdayLabel, NSUInteger index, BOOL *stop) {
+        CGFloat width = widths[index];
+        weekdayLabel.frame = CGRectMake(x, 0, width, self.contentView.fs_height);
+        x += width;
+    }];
+    x = 0;
+    [self.weekdayNotificationLabels enumerateObjectsUsingBlock:^(UILabel *notificationCircle, NSUInteger index, BOOL *stop) {
+        CGFloat width = widths[index];
+       // notificationCircle.text = [NSString stringWithFormat:@"%@",index];
+        notificationCircle.frame = CGRectMake(((self.contentView.fs_width/7) *index) + (self.contentView.fs_width/7) - (notificationDimen) , 0, notificationDimen, notificationDimen);
+        x += width;
+    }];
+    
     free(widths);
 }
 
@@ -89,6 +110,26 @@
 {
     _calendar = calendar;
     [self configureAppearance];
+}
+
+- (void)showNotificationLabel:(int) index withCount: (int)count
+{
+    NSUInteger uiIndex = index;
+    UILabel *notificationLabel = (UILabel*) [self.weekdayNotficationPointers.allObjects objectAtIndex:uiIndex];
+    notificationLabel.hidden = NO;
+    notificationLabel.text = [NSString stringWithFormat:@"%i", count];
+
+#ifdef DATALOEN
+    //notificationLabel.backgroundColor = KINDaySelectorColor;
+#endif
+   
+}
+
+- (void)hideNotificationLabel:(int) index
+{
+    NSUInteger uiIndex = index;
+    UILabel *notificationLabel = (UILabel*) [self.weekdayNotficationPointers.allObjects objectAtIndex:uiIndex];
+    notificationLabel.hidden = YES;
 }
 
 - (NSArray<UILabel *> *)weekdayLabels
@@ -102,13 +143,14 @@
     NSArray *weekdaySymbols = useVeryShortWeekdaySymbols ? self.calendar.gregorian.veryShortStandaloneWeekdaySymbols : self.calendar.gregorian.shortStandaloneWeekdaySymbols;
     BOOL useDefaultWeekdayCase = (self.calendar.appearance.caseOptions & (15<<4) ) == FSCalendarCaseOptionsWeekdayUsesDefaultCase;
     
-    for (NSInteger i = 0; i < self.weekdayPointers.count; i++) {
-        NSInteger index = (i + self.calendar.firstWeekday-1) % 7;
-        UILabel *label = [self.weekdayPointers pointerAtIndex:i];
+    [self.weekdayLabels enumerateObjectsUsingBlock:^(UILabel * _Nonnull label, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSInteger index = idx;
         label.font = self.calendar.appearance.weekdayFont;
         label.textColor = self.calendar.appearance.weekdayTextColor;
+        index += self.calendar.firstWeekday-1;
+        index %= 7;
         label.text = useDefaultWeekdayCase ? weekdaySymbols[index] : [weekdaySymbols[index] uppercaseString];
-    }
+    }];
 
 }
 
