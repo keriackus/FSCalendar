@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)configureAppearance;
 
+- (void)showNotificationLabel:(int) index withCount:(int)count;
+- (void)hideNotificationLabel:(int) index;
+
 @end
 
 NS_ASSUME_NONNULL_END
