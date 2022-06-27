@@ -137,6 +137,11 @@ CGFloat notificationDimen = 14;
     return self.weekdayPointers.allObjects;
 }
 
+- (NSArray<UILabel *> *)weekdayNotificationLabels
+{
+    return self.weekdayNotficationPointers.allObjects;
+}
+
 - (void)configureAppearance
 {
     BOOL useVeryShortWeekdaySymbols = (self.calendar.appearance.caseOptions & (15<<4) ) == FSCalendarCaseOptionsWeekdayUsesSingleUpperCase;
