@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)configureAppearance;
 
-- (void)showNotificationLabel:(int) index withCount:(int)count;
+- (void)showNotificationLabel:(int) index withCount: (int)count andBackgroundColor:(UIColor*)bgColor;
 - (void)hideNotificationLabel:(int) index;
 
 @end
