@@ -112,17 +112,16 @@ CGFloat notificationDimen = 14;
     [self configureAppearance];
 }
 
-- (void)showNotificationLabel:(int) index withCount: (int)count
+- (void)showNotificationLabel:(int) index withCount: (int)count andBackgroundColor:(UIColor*)bgColor
 {
     NSUInteger uiIndex = index;
     UILabel *notificationLabel = (UILabel*) [self.weekdayNotficationPointers.allObjects objectAtIndex:uiIndex];
     notificationLabel.hidden = NO;
     notificationLabel.text = [NSString stringWithFormat:@"%i", count];
 
-#ifdef DATALOEN
-    //notificationLabel.backgroundColor = KINDaySelectorColor;
-#endif
-   
+    if(bgColor != nil){
+        notificationLabel.backgroundColor = bgColor;
+    }
 }
 
 - (void)hideNotificationLabel:(int) index
