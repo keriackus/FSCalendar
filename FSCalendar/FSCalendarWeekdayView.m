@@ -90,16 +90,20 @@ CGFloat notificationDimen = 14;
     }
     
      __block CGFloat x = 0;
+     __block CGFloat y = 0;
+    if(self.calendar.scope == FSCalendarScopeWeek){
+        y = 8;
+    } 
     [self.weekdayLabels enumerateObjectsUsingBlock:^(UILabel *weekdayLabel, NSUInteger index, BOOL *stop) {
         CGFloat width = widths[index];
-        weekdayLabel.frame = CGRectMake(x, 0, width, self.contentView.fs_height);
+        weekdayLabel.frame = CGRectMake(x, y, width, self.contentView.fs_height);
         x += width;
     }];
     x = 0;
     [self.weekdayNotificationLabels enumerateObjectsUsingBlock:^(UILabel *notificationCircle, NSUInteger index, BOOL *stop) {
         CGFloat width = widths[index];
        // notificationCircle.text = [NSString stringWithFormat:@"%@",index];
-        notificationCircle.frame = CGRectMake(((self.contentView.fs_width/7) *index) + (self.contentView.fs_width/7) - (notificationDimen) , 0, notificationDimen, notificationDimen);
+        notificationCircle.frame = CGRectMake(((self.contentView.fs_width/7) *index) + (self.contentView.fs_width/7) - (notificationDimen) , y, notificationDimen, notificationDimen);
         x += width;
     }];
     
